@@ -5,93 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AINDRA // Enterprise 3D Cyber Platform</title>
 
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Next-Gen Enterprise 3D Web Engine with Multi-Scene WebGL Shaders & AI Integration.">
-    <meta name="keywords" content="Three.js, WebGL, Cyberpunk, 3D Engine, Flask, Enterprise SaaS">
+    <!-- Meta Tags for Production Ready PWA -->
+    <meta name="description" content="AINDRA Cyber-Core Enterprise WebGL Engine and Live Telemetry Platform">
+    <meta name="theme-color" content="#030712">
 
-    <!-- Fonts & Icons -->
+    <!-- Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Custom CSS via Flask url_for -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <!-- 3D WebGL Canvas -->
+    <!-- WebGL Render Canvas -->
     <canvas id="cyber-canvas"></canvas>
 
-    <!-- Top Navigation & Control Bar -->
+    <!-- Floating Top Control Dock -->
     <div class="control-panel">
-        <select id="scene-selector" onchange="change3DScene(this.value)" class="cyber-select">
+        <select id="scene-selector" onchange="change3DScene(this.value)" class="cyber-select" aria-label="3D Scene Selector">
             <option value="orb">CYBER ORB</option>
-            <option value="matrix">MATRIX RAIN</option>
             <option value="torus">NEON TORUS</option>
             <option value="particles">PARTICLE UNIVERSE</option>
         </select>
-        <button class="control-btn" onclick="toggleTheme()"><i class="fa-solid fa-palette"></i></button>
-        <button class="control-btn" onclick="toggleAudio()"><i class="fa-solid fa-volume-high" id="audio-icon"></i></button>
-        <button class="control-btn" onclick="toggleSpeed()"><i class="fa-solid fa-gauge-high"></i></button>
+        <button class="control-btn" onclick="toggleTheme()" title="Toggle Matrix/Neon Theme"><i class="fa-solid fa-palette"></i></button>
+        <button class="control-btn" onclick="toggleAudio()" title="Toggle Web Audio Synthesizer"><i class="fa-solid fa-volume-xmark" id="audio-icon"></i></button>
+        <button class="control-btn" onclick="toggleSpeed()" title="Toggle Turbo Speed"><i class="fa-solid fa-gauge-high"></i></button>
     </div>
 
-    <!-- Live Performance Stats Bar -->
+    <!-- Live Telemetry Stats Box -->
     <div class="stats-box" id="stats-display">
         FPS: <span id="fps-val">60</span> // POLYGONS: <span id="poly-val">1200</span> // SCENE: <span id="scene-val">CYBER ORB</span>
     </div>
 
-    <!-- UI Overlay Layer -->
+    <!-- Interface UI Overlay Container -->
     <div class="ui-wrapper">
+        
+        <!-- Header Navbar -->
         <nav class="cyber-nav">
             <div class="logo">AINDRA<span class="blink">_PRO</span></div>
             <div class="status-badge"><i class="fa-solid fa-circle"></i> SYSTEM ONLINE</div>
         </nav>
 
+        <!-- Hero Section -->
         <section class="hero-section">
             <h1 class="glitch-text" data-text="ENTERPRISE 3D PLATFORM">ENTERPRISE 3D PLATFORM</h1>
-            <p class="tagline">Interactive WebGL Shader Pipelines & Real-time Telemetry Dashboard</p>
+            <p class="tagline">Next-Generation WebGL Shader Architecture & Real-Time Microservice Telemetry</p>
             <div class="cta-group">
                 <button class="cyber-btn primary" onclick="initializeCoreSystem()">DIAGNOSTICS CORE <i class="fa-solid fa-microchip"></i></button>
                 <a href="#features" class="cyber-btn secondary">INSPECT NODES</a>
             </div>
         </section>
 
-        <!-- Dynamic Card Matrix -->
+        <!-- Feature Inspection Cards -->
         <section id="features" class="features-section">
             <div class="cyber-card" onclick="openCardModal('webgl')">
                 <div class="card-icon"><i class="fa-solid fa-cube"></i></div>
                 <h3>WebGL Shaders</h3>
-                <p>Multi-scene rendering pipeline with dynamic geometry transformations.</p>
+                <p>Multi-scene rendering engine driving dynamic geometry shaders and particle physics.</p>
                 <span class="card-link">INSPECT NODE <i class="fa-solid fa-arrow-right"></i></span>
             </div>
 
             <div class="cyber-card" onclick="openCardModal('neural')">
                 <div class="card-icon"><i class="fa-solid fa-brain"></i></div>
                 <h3>Neural Backend</h3>
-                <p>Python Flask microservices running real-time status telemetry APIs.</p>
+                <p>Python Flask microservices delivering real-time status and JSON API routes.</p>
                 <span class="card-link">INSPECT NODE <i class="fa-solid fa-arrow-right"></i></span>
             </div>
 
             <div class="cyber-card" onclick="openCardModal('defense')">
                 <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
                 <h3>Cyber Defense</h3>
-                <p>Hardened deployment specs with Automated CI/CD integration.</p>
+                <p>Production deployment pipeline with SSL encryption and CI/CD automation.</p>
                 <span class="card-link">INSPECT NODE <i class="fa-solid fa-arrow-right"></i></span>
             </div>
         </section>
 
         <footer>
-            <p>// AINDRA CYBER-CORE PLATFORM v3.0 — 2026</p>
+            <p>// AINDRA CYBER-CORE PLATFORM v3.0-ENTERPRISE — 2026 EDITION</p>
         </footer>
+
     </div>
 
-    <!-- Interactive Modal -->
+    <!-- Modal Drawer Window -->
     <div id="cyber-modal" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-content">
             <button class="close-btn" onclick="closeModalDirect()">&times;</button>
-            <div id="modal-body"></div>
+            <div id="modal-body">
+                <!-- Content injected dynamically via JS -->
+            </div>
         </div>
     </div>
 
-    <!-- Libraries -->
+    <!-- Three.js CDN and Core JS Logic -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

@@ -12,6 +12,7 @@ body {
     min-height: 100vh;
 }
 
+/* Fixed WebGL Canvas */
 #cyber-canvas {
     position: fixed;
     top: 0;
@@ -21,6 +22,7 @@ body {
     z-index: 1;
 }
 
+/* Interactive UI Layer Overlay */
 .ui-wrapper {
     position: relative;
     z-index: 2;
@@ -34,7 +36,7 @@ body {
     pointer-events: auto;
 }
 
-/* Control Panel & Dropdown */
+/* Floating Navigation Control Panel */
 .control-panel {
     position: fixed;
     top: 20px;
@@ -58,6 +60,7 @@ body {
     padding: 5px 8px;
     border-radius: 6px;
     outline: none;
+    cursor: pointer;
 }
 
 .control-btn {
@@ -78,7 +81,7 @@ body {
     box-shadow: 0 0 12px #00f3ff;
 }
 
-/* Stats Counter */
+/* Live Stats Bottom Box */
 .stats-box {
     position: fixed;
     bottom: 20px;
@@ -94,7 +97,7 @@ body {
     backdrop-filter: blur(10px);
 }
 
-/* Navigation */
+/* Header Navbar */
 .cyber-nav {
     display: flex;
     justify-content: space-between;
@@ -126,7 +129,7 @@ body {
     background: rgba(16, 185, 129, 0.1);
 }
 
-/* Hero Section */
+/* Hero Content */
 .hero-section { text-align: center; padding: 50px 10px; margin-bottom: 60px; }
 .glitch-text {
     font-family: 'Orbitron', sans-serif;
@@ -139,7 +142,7 @@ body {
 
 .tagline { font-size: 1.1rem; color: #9ca3af; margin-bottom: 30px; }
 
-/* Buttons */
+/* Action Buttons */
 .cta-group { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
 .cyber-btn {
     font-family: 'Orbitron', sans-serif;
@@ -159,9 +162,15 @@ body {
     box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
 }
 
-.cyber-btn.secondary { background: transparent; color: #00f3ff; border: 1px solid #00f3ff; }
+.cyber-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(157, 0, 255, 0.8);
+}
 
-/* Feature Cards Grid */
+.cyber-btn.secondary { background: transparent; color: #00f3ff; border: 1px solid #00f3ff; }
+.cyber-btn.secondary:hover { background: rgba(0, 243, 255, 0.1); }
+
+/* Grid Cards */
 .features-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -179,13 +188,13 @@ body {
     transition: all 0.3s ease;
 }
 
-.cyber-card:hover { border-color: #00f3ff; transform: translateY(-5px); }
+.cyber-card:hover { border-color: #00f3ff; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 243, 255, 0.15); }
 .card-icon { font-size: 2rem; color: #9d00ff; margin-bottom: 12px; }
 .cyber-card h3 { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #38bdf8; margin-bottom: 8px; }
 .cyber-card p { color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
 .card-link { display: inline-block; margin-top: 15px; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: #00f3ff; }
 
-/* Modals */
+/* Interactive Cyber Modal System */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(15px);
@@ -198,10 +207,12 @@ body {
     background: rgba(15, 23, 42, 0.95); border: 1px solid #00f3ff;
     box-shadow: 0 0 30px rgba(0, 243, 255, 0.3); border-radius: 16px;
     padding: 30px; max-width: 500px; width: 100%; position: relative; color: #fff;
+    transform: translateY(20px); transition: transform 0.3s ease;
 }
 
+.modal-overlay.active .modal-content { transform: translateY(0); }
 .close-btn { position: absolute; top: 15px; right: 20px; background: transparent; border: none; color: #00f3ff; font-size: 1.8rem; cursor: pointer; }
-.modal-title { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; color: #00f3ff; margin-bottom: 15px; }
+.modal-title { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; color: #00f3ff; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
 .modal-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
 .stat-item { background: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 8px; border-left: 3px solid #9d00ff; }
 .stat-item span { display: block; font-size: 0.7rem; color: #9ca3af; }
@@ -216,11 +227,17 @@ footer { text-align: center; color: #4b5563; font-size: 0.85rem; padding: 20px 0
     box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); color: #fff;
     padding: 12px 20px; border-radius: 8px; font-family: 'Orbitron', sans-serif;
     font-size: 0.85rem; display: flex; align-items: center; gap: 10px;
+    animation: slideIn 0.3s ease-out;
 }
 
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* Mobile Optimizations */
 @media (max-width: 768px) {
-    .cyber-nav { flex-direction: column; gap: 10px; }
+    .cyber-nav { flex-direction: column; gap: 10px; text-align: center; }
     .glitch-text { font-size: 2.1rem; }
     .cta-group { flex-direction: column; }
+    .cyber-btn { width: 100%; text-align: center; }
     .control-panel { top: 10px; right: 10px; left: 10px; justify-content: space-between; }
+    #toast-container { bottom: 20px; right: 20px; left: 20px; }
 }

@@ -9,8 +9,13 @@ def home():
 
 @app.route('/api/status')
 def status():
-    return jsonify({"status": "online", "system": "AINDRA Cyber-Core 3D", "version": "1.0.0"})
+    return jsonify({
+        "status": "online",
+        "system": "AINDRA Cyber-Core 3D",
+        "version": "2.0.0",
+        "engine": "WebGL / Three.js"
+    })
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)

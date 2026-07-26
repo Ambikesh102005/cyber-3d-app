@@ -4,30 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AINDRA // Futuristic 3D Experience</title>
+    
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- Custom CSS using Flask url_for -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <!-- 3D Canvas Container -->
+    <!-- 3D WebGL Canvas -->
     <canvas id="cyber-canvas"></canvas>
 
-    <!-- Overlay UI Content -->
-    <div class="ui-wrapper">
-        
-        <!-- Navigation -->
-          <!-- Floating Control Panel -->
+    <!-- Floating Interactive Controls -->
     <div class="control-panel">
         <button class="control-btn" onclick="toggleTheme()"><i class="fa-solid fa-palette"></i> THEME</button>
         <button class="control-btn" onclick="toggleSpeed()"><i class="fa-solid fa-gauge-high"></i> SPEED</button>
     </div>
 
-    <!-- FPS / System Stats Box -->
+    <!-- Live System Stats Box -->
     <div class="stats-box" id="stats-display">
-        ENGINE: WEBGL // FPS: 60
+        ENGINE: WEBGL // STATUS: ACTIVE
     </div>
 
+    <!-- UI Overlay Layer -->
+    <div class="ui-wrapper">
+        
+        <!-- Navigation -->
         <nav class="cyber-nav">
             <div class="logo">AINDRA<span class="blink">_3D</span></div>
             <div class="status-badge"><i class="fa-solid fa-circle"></i> CORE ONLINE</div>
@@ -70,8 +74,8 @@
 
     </div>
 
-    <!-- Three.js CDN -->
+    <!-- Three.js Library & Custom Script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="/static/script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

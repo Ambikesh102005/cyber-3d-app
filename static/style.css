@@ -1,3 +1,244 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #030712;
+    color: #f3f4f6;
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* 3D Canvas Background */
+#cyber-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: auto;
+}
+
+/* UI Overlay Layer */
+.ui-wrapper {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.ui-wrapper * {
+    pointer-events: auto;
+}
+
+/* Floating Control Panel */
+.control-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999;
+    display: flex;
+    gap: 10px;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    padding: 8px 12px;
+    border-radius: 12px;
+}
+
+.control-btn {
+    background: transparent;
+    border: 1px solid #00f3ff;
+    color: #00f3ff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background: #00f3ff;
+    color: #000;
+    box-shadow: 0 0 10px #00f3ff;
+}
+
+/* Stats Box */
+.stats-box {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 999;
+    background: rgba(3, 7, 18, 0.8);
+    border: 1px solid rgba(157, 0, 255, 0.4);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    color: #00f3ff;
+    backdrop-filter: blur(8px);
+}
+
+/* Nav Bar */
+.cyber-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: rgba(3, 7, 18, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 12px;
+    margin-bottom: 60px;
+}
+
+.logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #00f3ff;
+    letter-spacing: 2px;
+}
+
+.blink {
+    color: #9d00ff;
+    animation: blinker 1s infinite;
+}
+
+@keyframes blinker {
+    50% { opacity: 0; }
+}
+
+.status-badge {
+    font-size: 0.85rem;
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 60px 10px;
+    margin-bottom: 80px;
+}
+
+.glitch-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(0, 243, 255, 0.6), 0 0 40px rgba(157, 0, 255, 0.4);
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+}
+
+.tagline {
+    font-size: 1.2rem;
+    color: #9ca3af;
+    margin-bottom: 30px;
+}
+
+/* Buttons */
+.cta-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cyber-btn {
+    font-family: 'Orbitron', sans-serif;
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.cyber-btn.primary {
+    background: linear-gradient(135deg, #00f3ff, #9d00ff);
+    color: #000;
+    border: none;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+}
+
+.cyber-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 25px rgba(157, 0, 255, 0.8);
+}
+
+.cyber-btn.secondary {
+    background: transparent;
+    color: #00f3ff;
+    border: 1px solid #00f3ff;
+}
+
+.cyber-btn.secondary:hover {
+    background: rgba(0, 243, 255, 0.1);
+}
+
+/* Features Grid */
+.features-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 60px;
+}
+
+.cyber-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+
+.cyber-card:hover {
+    border-color: #00f3ff;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 243, 255, 0.15);
+}
+
+.card-icon {
+    font-size: 2rem;
+    color: #9d00ff;
+    margin-bottom: 15px;
+}
+
+.cyber-card h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    color: #38bdf8;
+    margin-bottom: 10px;
+}
+
+.cyber-card p {
+    color: #94a3b8;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+footer {
+    text-align: center;
+    color: #4b5563;
+    font-size: 0.85rem;
+    padding: 20px 0;
+}
+
 /* --- CYBERPUNK GLASS TOAST NOTIFICATION --- */
 #toast-container {
     position: fixed;
@@ -68,52 +309,4 @@
         right: 20px;
         left: 20px;
     }
-}
-/* --- CYBER CONTROL PANEL & THEMES --- */
-.control-panel {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 999;
-    display: flex;
-    gap: 10px;
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 243, 255, 0.3);
-    padding: 8px 12px;
-    border-radius: 12px;
-}
-
-.control-btn {
-    background: transparent;
-    border: 1px solid #00f3ff;
-    color: #00f3ff;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.control-btn:hover {
-    background: #00f3ff;
-    color: #000;
-    box-shadow: 0 0 10px #00f3ff;
-}
-
-/* FPS Stats Display */
-.stats-box {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 999;
-    background: rgba(3, 7, 18, 0.8);
-    border: 1px solid rgba(157, 0, 255, 0.4);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.75rem;
-    color: #9d00ff;
-    backdrop-filter: blur(8px);
 }

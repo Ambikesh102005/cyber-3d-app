@@ -4,67 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AINDRA // Futuristic 3D Experience</title>
-    
-    <!-- Fonts & Icons -->
+
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS using Flask url_for -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <!-- 3D WebGL Canvas -->
+    <!-- 3D Canvas -->
     <canvas id="cyber-canvas"></canvas>
 
-    <!-- Floating Interactive Controls -->
+    <!-- Controls & Stats -->
     <div class="control-panel">
         <button class="control-btn" onclick="toggleTheme()"><i class="fa-solid fa-palette"></i> THEME</button>
         <button class="control-btn" onclick="toggleSpeed()"><i class="fa-solid fa-gauge-high"></i> SPEED</button>
     </div>
 
-    <!-- Live System Stats Box -->
     <div class="stats-box" id="stats-display">
         ENGINE: WEBGL // STATUS: ACTIVE
     </div>
 
-    <!-- UI Overlay Layer -->
+    <!-- UI Overlay -->
     <div class="ui-wrapper">
         
-        <!-- Navigation -->
         <nav class="cyber-nav">
             <div class="logo">AINDRA<span class="blink">_3D</span></div>
             <div class="status-badge"><i class="fa-solid fa-circle"></i> CORE ONLINE</div>
         </nav>
 
-        <!-- Hero Section -->
         <section class="hero-section">
             <h1 class="glitch-text" data-text="THE FUTURE IS HERE">THE FUTURE IS HERE</h1>
             <p class="tagline">Next-Gen Interactive 3D Web Engine & Cybernetic Interface</p>
             <div class="cta-group">
-                <button class="cyber-btn primary" onclick="initCore()">INITIALIZE CORE <i class="fa-solid fa-bolt"></i></button>
+                <button class="cyber-btn primary" onclick="initializeCoreSystem()">INITIALIZE CORE <i class="fa-solid fa-bolt"></i></button>
                 <a href="#features" class="cyber-btn secondary">EXPLORE METRICS</a>
             </div>
         </section>
 
-        <!-- Feature Cards Section -->
+        <!-- Feature Cards (Now Clickable) -->
         <section id="features" class="features-section">
-            <div class="cyber-card">
+            <div class="cyber-card" onclick="openCardModal('webgl')">
                 <div class="card-icon"><i class="fa-solid fa-cube"></i></div>
                 <h3>WebGL 3D Engine</h3>
-                <p>Real-time hardware-accelerated 3D rendering with dynamic particle physics and custom shaders.</p>
+                <p>Real-time hardware-accelerated 3D rendering with dynamic particle physics.</p>
+                <span class="card-link">TOUCH TO INSPECT <i class="fa-solid fa-arrow-right"></i></span>
             </div>
 
-            <div class="cyber-card">
+            <div class="cyber-card" onclick="openCardModal('neural')">
                 <div class="card-icon"><i class="fa-solid fa-microchip"></i></div>
                 <h3>Neural Integration</h3>
-                <p>High-performance backend powered by Flask & Python microservices with low-latency APIs.</p>
+                <p>High-performance backend powered by Flask & Python microservices.</p>
+                <span class="card-link">TOUCH TO INSPECT <i class="fa-solid fa-arrow-right"></i></span>
             </div>
 
-            <div class="cyber-card">
+            <div class="cyber-card" onclick="openCardModal('defense')">
                 <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
                 <h3>Cyber Defense</h3>
-                <p>Hardened deployment pipeline with CI/CD automation and production-grade security specs.</p>
+                <p>Hardened deployment pipeline with CI/CD automation & security specs.</p>
+                <span class="card-link">TOUCH TO INSPECT <i class="fa-solid fa-arrow-right"></i></span>
             </div>
         </section>
 
@@ -74,7 +71,16 @@
 
     </div>
 
-    <!-- Three.js Library & Custom Script -->
+    <!-- Dynamic Modal System -->
+    <div id="cyber-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModalDirect()">&times;</button>
+            <div id="modal-body">
+                <!-- Content loaded dynamically via JS -->
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

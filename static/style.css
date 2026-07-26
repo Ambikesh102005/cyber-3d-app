@@ -310,3 +310,107 @@ footer {
         left: 20px;
     }
 }
+/* --- CLICKABLE CARD STYLES --- */
+.cyber-card {
+    cursor: pointer;
+    position: relative;
+}
+
+.card-link {
+    display: inline-block;
+    margin-top: 15px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    color: #00f3ff;
+    letter-spacing: 1px;
+}
+
+/* --- CYBER MODAL SYSTEM --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(3, 7, 18, 0.85);
+    backdrop-filter: blur(15px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid #00f3ff;
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: #00f3ff;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+.modal-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    color: #00f3ff;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #9d00ff;
+}
+
+.stat-item span {
+    display: block;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.stat-item strong {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    color: #38bdf8;
+}

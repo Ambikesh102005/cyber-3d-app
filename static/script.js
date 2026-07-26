@@ -163,3 +163,85 @@ function showCyberToast(message, icon = "fa-bolt") {
 function initCore() {
     showCyberToast("AINDRA 3D Cyber-Core Initialized!", "fa-circle-check");
 }
+// --- INITIALIZE CORE SYSTEM (Fetches Real API Data) ---
+async function initializeCoreSystem() {
+    showCyberToast("Connecting to AINDRA Backend...", "fa-spinner fa-spin");
+    
+    try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+
+        const modalBody = document.getElementById('modal-body');
+        modalBody.innerHTML = `
+            <div class="modal-title"><i class="fa-solid fa-microchip" style="color:#00f3ff"></i> CORE SYSTEM ONLINE</div>
+            <p>System Diagnostics executed successfully from Flask Backend microservices.</p>
+            <div class="modal-stat-grid">
+                <div class="stat-item"><span>SYSTEM STATUS</span><strong>${data.status.toUpperCase()}</strong></div>
+                <div class="stat-item"><span>CORE ENGINE</span><strong>${data.engine}</strong></div>
+                <div class="stat-item"><span>API VERSION</span><strong>${data.version}</strong></div>
+                <div class="stat-item"><span>CORE NAME</span><strong>${data.system}</strong></div>
+            </div>
+            <button class="cyber-btn primary" style="width:100%" onclick="toggleSpeed()">BOOST CORE SPEED ⚡</button>
+        `;
+        openModal();
+    } catch (err) {
+        showCyberToast("Failed to fetch API data", "fa-triangle-exclamation");
+    }
+}
+
+// --- CARD CLICK INSPECTOR MODALS ---
+function openCardModal(type) {
+    const modalBody = document.getElementById('modal-body');
+    
+    if (type === 'webgl') {
+        modalBody.innerHTML = `
+            <div class="modal-title"><i class="fa-solid fa-cube" style="color:#00f3ff"></i> WebGL 3D Engine</div>
+            <p>Real-time GPU accelerated rendering pipeline driving the 3D Cyber-Orb geometry.</p>
+            <div class="modal-stat-grid">
+                <div class="stat-item"><span>GEOMETRY</span><strong>Icosahedron (Wireframe)</strong></div>
+                <div class="stat-item"><span>PARTICLES</span><strong>700 Active Nodes</strong></div>
+                <div class="stat-item"><span>RENDERER</span><strong>Three.js WebGL</strong></div>
+                <div class="stat-item"><span>FRAME RATE</span><strong>60 FPS Smooth</strong></div>
+            </div>
+            <button class="cyber-btn primary" style="width:100%" onclick="toggleTheme()">CHANGE COLOR MATRIX 🎨</button>
+        `;
+    } else if (type === 'neural') {
+        modalBody.innerHTML = `
+            <div class="modal-title"><i class="fa-solid fa-brain" style="color:#9d00ff"></i> Neural Backend API</div>
+            <p>Flask microservice providing state endpoints and JSON payload routing.</p>
+            <div class="modal-stat-grid">
+                <div class="stat-item"><span>BACKEND</span><strong>Python 3 / Flask</strong></div>
+                <div class="stat-item"><span>SERVER</span><strong>Gunicorn PaaS</strong></div>
+                <div class="stat-item"><span>LATENCY</span><strong>12 ms Response</strong></div>
+                <div class="stat-item"><span>ENDPOINT</span><strong>/api/status</strong></div>
+            </div>
+        `;
+    } else if (type === 'defense') {
+        modalBody.innerHTML = `
+            <div class="modal-title"><i class="fa-solid fa-shield-halved" style="color:#10b981"></i> Cyber Defense Specs</div>
+            <p>Hardened deployment environment configured with GitHub CI/CD automation.</p>
+            <div class="modal-stat-grid">
+                <div class="stat-item"><span>CI/CD</span><strong>GitHub Actions / Render</strong></div>
+                <div class="stat-item"><span>SSL</span><strong>TLS 1.3 Encrypted</strong></div>
+                <div class="stat-item"><span>LICENSE</span><strong>MIT Open Source</strong></div>
+                <div class="stat-item"><span>HEALTH</span><strong>100% Operational</strong></div>
+            </div>
+        `;
+    }
+    openModal();
+}
+
+// Modal Handlers
+function openModal() {
+    document.getElementById('cyber-modal').classList.add('active');
+}
+
+function closeModal(e) {
+    if (e.target.id === 'cyber-modal') {
+        document.getElementById('cyber-modal').classList.remove('active');
+    }
+}
+
+function closeModalDirect() {
+    document.getElementById('cyber-modal').classList.remove('active');
+}

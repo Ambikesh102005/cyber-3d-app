@@ -19,10 +19,52 @@ let currentTheme = 'cyberpunk';
 let audioEnabled = false;
 let currentUser = null;
 
-// Socket Event Handlers
-socket.on('connect', () => console.log('Connected to AINDRA WebSocket Network'));
+// Listen for Auth State Changes Automatically
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        currentUser = user;
+        const firstName = user.displayName ? user.displayName.split(' ')[0].toUpperCase() : "USER";
+        document.getElementById('auth-label').innerText = firstName;
+        showCyberToast(`Logged in as ${user.displayName}`, "fa-user-check");
+    } else {
+        currentUser = null;
+        document.getElementById('auth-label').innerText = "LOGIN";
+    }
+});
 
-// --- CUSTOM GLSL SHADERS ---
+// --- REAL FIREBASE GOOGLE AUTHENTICATION ---
+function loginWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            currentUser = user;
+            
+            // Save User Record in Realtime Database
+            db.ref('users/' + user.uid).set({
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+                lastActive: new Date().toISOString()
+            });
+
+            closeModalDirect();
+            showCyberToast(`Welcome, ${user.displayName}!`, "fa-circle-check");
+        })
+        .catch((error) => {
+            console.error("Firebase Auth Error:", error);
+            showCyberToast("Google Auth Failed or Cancelled", "fa-triangle-exclamation");
+        });
+}
+
+function logoutUser() {
+    auth.signOut().then(() => {
+        closeModalDirect();
+        showCyberToast("Signed Out Successfully", "fa-right-from-bracket");
+    });
+}
+
+// --- CUSTOM GLSL SHADER PIPELINE ---
 const customVertexShader = `
     uniform float uTime;
     varying vec2 vUv;
@@ -79,7 +121,7 @@ function toggleAudio() {
     showCyberToast(audioEnabled ? "Audio Synthesizer: Active 🔊" : "Audio Muted 🔇", "fa-volume-high");
 }
 
-// --- 8 MULTI-SCENE BUILDERS ---
+// --- 8 MULTI-SCENE GENERATORS ---
 function clearSceneGroup() {
     while(sceneGroup.children.length > 0) {
         const obj = sceneGroup.children[0];
@@ -199,7 +241,7 @@ function animate() {
 }
 animate();
 
-// --- MODALS & API INTERACTIVITY ---
+// --- CONTROLS & MODALS ---
 function toggleSpeed() {
     isFast = !isFast;
     playCyberBeep(750, 'sine');
@@ -208,12 +250,30 @@ function toggleSpeed() {
 
 function toggleTheme() {
     playCyberBeep(520, 'square');
-    showCyberToast("Theme Inverted 🎨", "fa-palette");
+    showCyberToast("Theme Matrix Applied 🟢", "fa-palette");
+}
+
+function openAuthModal() {
+    const modalBody = document.getElementById('modal-body');
+    if (currentUser) {
+        modalBody.innerHTML = `
+            <div class="modal-title"><i class="fa-solid fa-user-check"></i> AUTHENTICATED USER</div>
+            <p style="margin-bottom:15px">Logged in as: <strong>${currentUser.displayName}</strong> (${currentUser.email})</p>
+            <button class="cyber-btn primary" style="width:100%" onclick="logoutUser()">LOGOUT ACCOUNT 🚪</button>
+        `;
+    } else {
+        modalBody.innerHTML = `
+            <div class="modal-title"><i class="fa-solid fa-user-astronaut"></i> GOOGLE AUTHENTICATION</div>
+            <p>Connect your Google Account with Firebase Cloud Credentials to save scores and custom presets.</p>
+            <button class="cyber-btn primary" style="width:100%; margin-top:20px;" onclick="loginWithGoogle()">SIGN IN WITH GOOGLE 🚀</button>
+        `;
+    }
+    openModal();
 }
 
 async function openLeaderboardModal() {
     playCyberBeep(650, 'sine');
-    showCyberToast("Fetching Global Leaderboard...", "fa-trophy");
+    showCyberToast("Fetching Realtime Leaderboard...", "fa-trophy");
     try {
         const res = await fetch('/api/leaderboard');
         const data = await res.json();
@@ -229,22 +289,6 @@ async function openLeaderboardModal() {
     } catch(e) {}
 }
 
-function openAuthModal() {
-    document.getElementById('modal-body').innerHTML = `
-        <div class="modal-title"><i class="fa-solid fa-user-astronaut"></i> USER AUTHENTICATION</div>
-        <p>Connect with Firebase Cloud Credentials or Google OAuth.</p>
-        <button class="cyber-btn primary" style="width:100%; margin-top:15px;" onclick="simulateGoogleAuth()">SIGN IN WITH GOOGLE 🚀</button>
-    `;
-    openModal();
-}
-
-function simulateGoogleAuth() {
-    currentUser = "CyberUser_2026";
-    document.getElementById('auth-label').innerText = "CONNECTED";
-    closeModalDirect();
-    showCyberToast("Authenticated as CyberUser_2026!", "fa-circle-check");
-}
-
 async function initializeCoreSystem() {
     const res = await fetch('/api/status');
     const data = await res.json();
@@ -252,9 +296,9 @@ async function initializeCoreSystem() {
         <div class="modal-title"><i class="fa-solid fa-microchip"></i> SYSTEM DIAGNOSTICS</div>
         <div class="modal-stat-grid">
             <div class="stat-item"><span>SYSTEM</span><strong>${data.system}</strong></div>
-            <div class="stat-item"><span>DATABASE</span><strong>${data.database}</strong></div>
+            <div class="stat-item"><span>DATABASE</span><strong>Firebase Connected</strong></div>
             <div class="stat-item"><span>WEBSOCKET</span><strong>CONNECTED</strong></div>
-            <div class="stat-item"><span>SCENES</span><strong>8 ACTIVE SCENES</strong></div>
+            <div class="stat-item"><span>SCENES</span><strong>8 SCENES LOADED</strong></div>
         </div>
     `;
     openModal();

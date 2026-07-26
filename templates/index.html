@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AINDRA // Cyber-Nexus Enterprise 3D</title>
 
-    <!-- PWA Manifest -->
+    <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="theme-color" content="#030712">
 
@@ -14,16 +14,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <!-- Firebase SDK (v9) -->
+    <!-- Firebase Compat SDKs (For Easy Integration with Custom JS) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- YOUR LIVE FIREBASE CONFIGURATION -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCudaqq-9o8S6FNCSRU2js9mFxCWXm3N6w",
+        authDomain: "aindra-3d-nexus.firebaseapp.com",
+        projectId: "aindra-3d-nexus",
+        storageBucket: "aindra-3d-nexus.firebasestorage.app",
+        messagingSenderId: "644158853215",
+        appId: "1:644158853215:web:5ecdea24056f256e2b0bea",
+        measurementId: "G-8SQ19YT6GK"
+      };
+
+      // Initialize Firebase Global Instance
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.database();
+    </script>
 </head>
 <body>
 
     <!-- 3D WebGL Canvas -->
     <canvas id="cyber-canvas"></canvas>
 
-    <!-- Floating Top Dock Controls -->
+    <!-- Floating Top Control Bar -->
     <div class="control-panel">
         <select id="scene-selector" onchange="change3DScene(this.value)" class="cyber-select">
             <option value="orb">1. CYBER ORB</option>
@@ -36,27 +55,27 @@
             <option value="fractal">8. FRACTAL</option>
         </select>
 
-        <button class="control-btn" onclick="toggleTheme()" title="Theme"><i class="fa-solid fa-palette"></i></button>
+        <button class="control-btn" onclick="toggleTheme()" title="Toggle Theme"><i class="fa-solid fa-palette"></i></button>
         <button class="control-btn" onclick="toggleAudio()" title="Audio Synthesizer"><i class="fa-solid fa-volume-xmark" id="audio-icon"></i></button>
-        <button class="control-btn" onclick="toggleSpeed()" title="Turbo Boost"><i class="fa-solid fa-gauge-high"></i></button>
-        <button class="control-btn highlight" onclick="openAuthModal()" title="User Login"><i class="fa-solid fa-user-astronaut"></i> <span id="auth-label">LOGIN</span></button>
+        <button class="control-btn" onclick="toggleSpeed()" title="Turbo Speed"><i class="fa-solid fa-gauge-high"></i></button>
+        <button class="control-btn highlight" onclick="openAuthModal()" title="Google Account Login"><i class="fa-solid fa-user-astronaut"></i> <span id="auth-label">LOGIN</span></button>
     </div>
 
-    <!-- Live Telemetry Dashboard -->
+    <!-- Telemetry Stats Overlay -->
     <div class="stats-box" id="stats-display">
         FPS: <span id="fps-val">60</span> // SHADER: <span id="shader-val">CUSTOM GLSL</span> // SCENE: <span id="scene-val">CYBER ORB</span>
     </div>
 
-    <!-- UI Overlay Layer -->
+    <!-- UI Layer -->
     <div class="ui-wrapper">
         <nav class="cyber-nav">
             <div class="logo">AINDRA<span class="blink">_PRO</span></div>
-            <div class="status-badge"><i class="fa-solid fa-circle"></i> WEBSOCKET ONLINE</div>
+            <div class="status-badge"><i class="fa-solid fa-circle"></i> SYSTEM ONLINE</div>
         </nav>
 
         <section class="hero-section">
             <h1 class="glitch-text" data-text="CYBER-NEXUS PEAK">CYBER-NEXUS PEAK</h1>
-            <p class="tagline">Interactive 8-Scene Shader Pipeline, Real-time WebSockets & Firebase Database</p>
+            <p class="tagline">Interactive 8-Scene Shader Pipeline, Real-time WebSockets & Live Firebase Cloud Database</p>
             <div class="cta-group">
                 <button class="cyber-btn primary" onclick="initializeCoreSystem()">DIAGNOSTICS CORE <i class="fa-solid fa-microchip"></i></button>
                 <button class="cyber-btn secondary" onclick="openLeaderboardModal()">GLOBAL LEADERBOARD 🏆</button>
@@ -75,14 +94,14 @@
             <div class="cyber-card" onclick="openCardModal('firebase')">
                 <div class="card-icon"><i class="fa-solid fa-database"></i></div>
                 <h3>Firebase & Auth</h3>
-                <p>Google OAuth Authentication & Cloud Persistence Database state management.</p>
+                <p>Google OAuth Authentication & Realtime Cloud Data Persistence.</p>
                 <span class="card-link">INSPECT AUTH <i class="fa-solid fa-arrow-right"></i></span>
             </div>
 
             <div class="cyber-card" onclick="openCardModal('websocket')">
                 <div class="card-icon"><i class="fa-solid fa-tower-cell"></i></div>
                 <h3>WebSocket Pipeline</h3>
-                <p>Low-latency Socket.io telemetry streaming multi-client updates.</p>
+                <p>Low-latency Socket.io telemetry streaming real-time client sync.</p>
                 <span class="card-link">INSPECT NETWORK <i class="fa-solid fa-arrow-right"></i></span>
             </div>
         </section>
@@ -92,7 +111,7 @@
         </footer>
     </div>
 
-    <!-- Dynamic Modal System -->
+    <!-- Modal Drawer System -->
     <div id="cyber-modal" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-content">
             <button class="close-btn" onclick="closeModalDirect()">&times;</button>
@@ -100,12 +119,12 @@
         </div>
     </div>
 
-    <!-- Libraries -->
+    <!-- CDN JS Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-    <!-- Register PWA Service Worker -->
+    <!-- PWA Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/static/service-worker.js')

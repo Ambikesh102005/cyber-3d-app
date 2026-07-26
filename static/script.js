@@ -1,4 +1,5 @@
-// --- THREE.JS MULTI-SCENE ENGINE SETUP ---
+// --- WEBSOCKET & 3D ENGINE INITIALIZATION ---
+const socket = io();
 const canvas = document.getElementById('cyber-canvas');
 const scene = new THREE.Scene();
 
@@ -9,7 +10,6 @@ const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alph
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// Scene Parent Group
 const sceneGroup = new THREE.Group();
 scene.add(sceneGroup);
 
@@ -17,11 +17,46 @@ let currentScene = 'orb';
 let isFast = false;
 let currentTheme = 'cyberpunk';
 let audioEnabled = false;
+let currentUser = null;
 
-// --- NATIVE WEB AUDIO SYNTHESIZER ---
+// Socket Event Handlers
+socket.on('connect', () => console.log('Connected to AINDRA WebSocket Network'));
+
+// --- CUSTOM GLSL SHADERS ---
+const customVertexShader = `
+    uniform float uTime;
+    varying vec2 vUv;
+    varying float vDisplacement;
+    void main() {
+        vUv = uv;
+        vec3 pos = position;
+        float wave = sin(pos.x * 5.0 + uTime * 2.0) * cos(pos.y * 5.0 + uTime * 2.0);
+        pos += normal * wave * 0.2;
+        vDisplacement = wave;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+    }
+`;
+
+const customFragmentShader = `
+    uniform float uTime;
+    varying float vDisplacement;
+    void main() {
+        vec3 color = mix(vec3(0.0, 0.95, 1.0), vec3(0.61, 0.0, 1.0), vDisplacement + 0.5);
+        gl_FragColor = vec4(color, 0.85);
+    }
+`;
+
+const customShaderMaterial = new THREE.ShaderMaterial({
+    vertexShader: customVertexShader,
+    fragmentShader: customFragmentShader,
+    uniforms: { uTime: { value: 0 } },
+    wireframe: true,
+    transparent: true
+});
+
+// --- AUDIO SYNTHESIZER ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playCyberBeep(freq = 440, type = 'sine', duration = 0.15) {
+function playCyberBeep(freq = 440, type = 'sine', duration = 0.12) {
     if (!audioEnabled) return;
     try {
         const osc = audioCtx.createOscillator();
@@ -39,100 +74,121 @@ function playCyberBeep(freq = 440, type = 'sine', duration = 0.15) {
 
 function toggleAudio() {
     audioEnabled = !audioEnabled;
-    if (audioEnabled && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-    const icon = document.getElementById('audio-icon');
-    icon.className = audioEnabled ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
-    playCyberBeep(audioEnabled ? 880 : 300, 'sine');
-    showCyberToast(audioEnabled ? "Audio Synthesizer: Enabled 🔊" : "Audio Synthesizer: Muted 🔇", "fa-volume-high");
+    if (audioEnabled && audioCtx.state === 'suspended') audioCtx.resume();
+    document.getElementById('audio-icon').className = audioEnabled ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
+    showCyberToast(audioEnabled ? "Audio Synthesizer: Active 🔊" : "Audio Muted 🔇", "fa-volume-high");
 }
 
-// --- 3D SCENE GENERATORS ---
-
+// --- 8 MULTI-SCENE BUILDERS ---
 function clearSceneGroup() {
-    while(sceneGroup.children.length > 0) { 
+    while(sceneGroup.children.length > 0) {
         const obj = sceneGroup.children[0];
         if (obj.geometry) obj.geometry.dispose();
-        if (obj.material) obj.material.dispose();
-        sceneGroup.remove(obj); 
+        sceneGroup.remove(obj);
     }
 }
 
-// 1. Cyber Orb Geometry
 function buildOrbScene() {
     clearSceneGroup();
-    const coreGeo = new THREE.IcosahedronGeometry(1.2, 2);
-    const coreMat = new THREE.MeshBasicMaterial({ color: 0x9d00ff, wireframe: true, transparent: true, opacity: 0.6 });
-    const core = new THREE.Mesh(coreGeo, coreMat);
-
-    const outerGeo = new THREE.IcosahedronGeometry(1.8, 1);
-    const outerMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, transparent: true, opacity: 0.35 });
-    const outer = new THREE.Mesh(outerGeo, outerMat);
-
-    sceneGroup.add(core);
-    sceneGroup.add(outer);
-    document.getElementById('poly-val').innerText = "1200";
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.2, 2), customShaderMaterial);
+    const outer = new THREE.Mesh(new THREE.IcosahedronGeometry(1.8, 1), new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, transparent: true, opacity: 0.3 }));
+    sceneGroup.add(core, outer);
 }
 
-// 2. Holographic Torus Field
 function buildTorusScene() {
     clearSceneGroup();
-    const torusGeo = new THREE.TorusGeometry(1.4, 0.45, 16, 80);
-    const torusMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, transparent: true, opacity: 0.7 });
-    const torus = new THREE.Mesh(torusGeo, torusMat);
+    const torus = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.4, 16, 80), customShaderMaterial);
     sceneGroup.add(torus);
-    document.getElementById('poly-val').innerText = "3200";
 }
 
-// 3. Deep Space Particle Universe
 function buildParticlesScene() {
     clearSceneGroup();
-    const particlesGeo = new THREE.BufferGeometry();
-    const count = 1500;
-    const positions = new Float32Array(count * 3);
-    for (let i = 0; i < count * 3; i++) {
-        positions[i] = (Math.random() - 0.5) * 15;
-    }
-    particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const particlesMat = new THREE.PointsMaterial({ size: 0.03, color: 0x9d00ff, transparent: true, opacity: 0.8 });
-    const particleSystem = new THREE.Points(particlesGeo, particlesMat);
-    sceneGroup.add(particleSystem);
-    document.getElementById('poly-val').innerText = "4500";
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(1500 * 3);
+    for (let i = 0; i < 4500; i++) pos[i] = (Math.random() - 0.5) * 15;
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    sceneGroup.add(new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.03, color: 0x9d00ff })));
 }
 
-// Initialize Default Orb Scene
+function buildKaleidoscopeScene() {
+    clearSceneGroup();
+    for(let i=0; i<5; i++) {
+        const mesh = new THREE.Mesh(new THREE.TorusKnotGeometry(0.8 + i*0.2, 0.1, 64, 8), customShaderMaterial);
+        sceneGroup.add(mesh);
+    }
+}
+
+function buildPlanetScene() {
+    clearSceneGroup();
+    const planet = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), customShaderMaterial);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(1.4, 2.0, 32), new THREE.MeshBasicMaterial({ color: 0x00f3ff, side: THREE.DoubleSide, wireframe: true }));
+    ring.rotation.x = Math.PI / 2;
+    sceneGroup.add(planet, ring);
+}
+
+function buildStarfieldScene() {
+    clearSceneGroup();
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(3000 * 3);
+    for (let i = 0; i < 9000; i++) pos[i] = (Math.random() - 0.5) * 20;
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    sceneGroup.add(new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.04, color: 0x00f3ff })));
+}
+
+function buildDnaScene() {
+    clearSceneGroup();
+    const group = new THREE.Group();
+    for(let i=0; i<30; i++) {
+        const p1 = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0x00f3ff }));
+        const p2 = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0x9d00ff }));
+        p1.position.set(Math.sin(i*0.3), (i-15)*0.15, Math.cos(i*0.3));
+        p2.position.set(-Math.sin(i*0.3), (i-15)*0.15, -Math.cos(i*0.3));
+        group.add(p1, p2);
+    }
+    sceneGroup.add(group);
+}
+
+function buildFractalScene() {
+    clearSceneGroup();
+    const mesh = new THREE.Mesh(new THREE.OctahedronGeometry(1.5, 3), customShaderMaterial);
+    sceneGroup.add(mesh);
+}
+
 buildOrbScene();
 
-// Scene Selector Switcher Function
-function change3DScene(sceneName) {
-    currentScene = sceneName;
-    playCyberBeep(650, 'triangle');
-    document.getElementById('scene-val').innerText = sceneName.toUpperCase();
+function change3DScene(name) {
+    currentScene = name;
+    playCyberBeep(600, 'triangle');
+    document.getElementById('scene-val').innerText = name.toUpperCase();
+    
+    if (name === 'orb') buildOrbScene();
+    else if (name === 'torus') buildTorusScene();
+    else if (name === 'particles') buildParticlesScene();
+    else if (name === 'kaleidoscope') buildKaleidoscopeScene();
+    else if (name === 'planet') buildPlanetScene();
+    else if (name === 'starfield') buildStarfieldScene();
+    else if (name === 'dna') buildDnaScene();
+    else if (name === 'fractal') buildFractalScene();
 
-    if (sceneName === 'orb') buildOrbScene();
-    else if (sceneName === 'torus') buildTorusScene();
-    else if (sceneName === 'particles') buildParticlesScene();
-
-    showCyberToast(`Environment Switched: ${sceneName.toUpperCase()}`, "fa-cube");
+    showCyberToast(`Environment Loaded: ${name.toUpperCase()}`, "fa-cube");
 }
 
-// --- ANIMATION & TELEMETRY LOOP ---
+// --- ANIMATION LOOP ---
 const clock = new THREE.Clock();
-let frameCount = 0;
-let lastTime = performance.now();
+let frameCount = 0, lastTime = performance.now();
 
 function animate() {
     requestAnimationFrame(animate);
     const elapsedTime = clock.getElapsedTime();
     const speed = isFast ? 2.5 : 1.0;
 
+    customShaderMaterial.uniforms.uTime.value = elapsedTime;
+
     sceneGroup.rotation.x = elapsedTime * 0.3 * speed;
     sceneGroup.rotation.y = elapsedTime * 0.5 * speed;
 
     renderer.render(scene, camera);
 
-    // Calculate Real-time FPS
     frameCount++;
     const now = performance.now();
     if (now - lastTime >= 1000) {
@@ -143,123 +199,87 @@ function animate() {
 }
 animate();
 
-// --- CONTROLS & API DIAGNOSTICS ---
+// --- MODALS & API INTERACTIVITY ---
 function toggleSpeed() {
     isFast = !isFast;
     playCyberBeep(750, 'sine');
-    showCyberToast(isFast ? "3D Core Speed: Turbo Boosted ⚡" : "3D Core Speed: Normal 🟢", "fa-gauge-high");
+    showCyberToast(isFast ? "Turbo Speed Boosted ⚡" : "Normal Speed 🟢", "fa-gauge-high");
 }
 
 function toggleTheme() {
     playCyberBeep(520, 'square');
-    if (currentTheme === 'cyberpunk') {
-        currentTheme = 'matrix';
-        sceneGroup.children.forEach(obj => { if(obj.material) obj.material.color.setHex(0x00ff66); });
-        showCyberToast("Theme Matrix Green Applied 🟢", "fa-palette");
-    } else {
-        currentTheme = 'cyberpunk';
-        sceneGroup.children.forEach(obj => { if(obj.material) obj.material.color.setHex(0x00f3ff); });
-        showCyberToast("Theme Cyberpunk Neon Applied 🌌", "fa-palette");
-    }
+    showCyberToast("Theme Inverted 🎨", "fa-palette");
 }
 
-// Fetch Diagnostics from Flask API
-async function initializeCoreSystem() {
-    playCyberBeep(800, 'sine');
-    showCyberToast("Polling Backend Microservice...", "fa-spinner fa-spin");
-    
+async function openLeaderboardModal() {
+    playCyberBeep(650, 'sine');
+    showCyberToast("Fetching Global Leaderboard...", "fa-trophy");
     try {
-        const response = await fetch('/api/status');
-        const data = await response.json();
+        const res = await fetch('/api/leaderboard');
+        const data = await res.json();
+        let rows = data.leaderboard.map(u => `
+            <div class="stat-item"><span>RANK #${u.rank} - ${u.username}</span><strong>${u.score} PTS (${u.fps} FPS)</strong></div>
+        `).join('');
 
-        const modalBody = document.getElementById('modal-body');
-        modalBody.innerHTML = `
-            <div class="modal-title"><i class="fa-solid fa-microchip"></i> DIAGNOSTICS CORE ONLINE</div>
-            <p>Real-time system configuration fetched from Flask REST Endpoints.</p>
-            <div class="modal-stat-grid">
-                <div class="stat-item"><span>SYSTEM</span><strong>${data.system}</strong></div>
-                <div class="stat-item"><span>STATUS</span><strong>${data.status}</strong></div>
-                <div class="stat-item"><span>VERSION</span><strong>${data.version}</strong></div>
-                <div class="stat-item"><span>ENGINE</span><strong>${data.engine}</strong></div>
-                <div class="stat-item"><span>MEMORY</span><strong>${data.memory_usage}</strong></div>
-                <div class="stat-item"><span>ENCRYPTION</span><strong>${data.ssl}</strong></div>
-            </div>
-            <button class="cyber-btn primary" style="width:100%" onclick="toggleSpeed()">BOOST CORE SPEED ⚡</button>
+        document.getElementById('modal-body').innerHTML = `
+            <div class="modal-title"><i class="fa-solid fa-trophy" style="color:#f59e0b"></i> GLOBAL LEADERBOARD</div>
+            <div class="modal-stat-grid">${rows}</div>
         `;
         openModal();
-    } catch (err) {
-        showCyberToast("Failed to connect to API endpoint", "fa-triangle-exclamation");
-    }
+    } catch(e) {}
 }
 
-// Card Modal Inspector
-function openCardModal(type) {
-    playCyberBeep(600, 'sine');
-    const modalBody = document.getElementById('modal-body');
-    
-    if (type === 'webgl') {
-        modalBody.innerHTML = `
-            <div class="modal-title"><i class="fa-solid fa-cube"></i> WebGL Shader Engine</div>
-            <p>Hardware-accelerated rendering pipeline controlling active WebGL scenes.</p>
-            <div class="modal-stat-grid">
-                <div class="stat-item"><span>ACTIVE SCENE</span><strong>${currentScene.toUpperCase()}</strong></div>
-                <div class="stat-item"><span>POLYGONS</span><strong>${document.getElementById('poly-val').innerText}</strong></div>
-                <div class="stat-item"><span>TARGET FPS</span><strong>60 FPS</strong></div>
-                <div class="stat-item"><span>PIXEL RATIO</span><strong>${window.devicePixelRatio}x</strong></div>
-            </div>
-        `;
-    } else if (type === 'neural') {
-        modalBody.innerHTML = `
-            <div class="modal-title"><i class="fa-solid fa-brain"></i> Neural Backend API</div>
-            <p>High-performance Python Flask microservices driving asynchronous telemetry routing.</p>
-            <div class="modal-stat-grid">
-                <div class="stat-item"><span>FRAMEWORK</span><strong>Flask / Python 3</strong></div>
-                <div class="stat-item"><span>SERVER</span><strong>Gunicorn WSGI</strong></div>
-                <div class="stat-item"><span>ENDPOINT</span><strong>/api/status</strong></div>
-                <div class="stat-item"><span>LATENCY</span><strong>&lt; 10ms</strong></div>
-            </div>
-        `;
-    } else if (type === 'defense') {
-        modalBody.innerHTML = `
-            <div class="modal-title"><i class="fa-solid fa-shield-halved"></i> Cyber Defense Specs</div>
-            <p>Hardened deployment pipeline configured with automated CI/CD workflows.</p>
-            <div class="modal-stat-grid">
-                <div class="stat-item"><span>CI/CD</span><strong>GitHub Actions</strong></div>
-                <div class="stat-item"><span>HOSTING</span><strong>Render PaaS</strong></div>
-                <div class="stat-item"><span>SSL</span><strong>TLS 1.3 Active</strong></div>
-                <div class="stat-item"><span>HEALTH</span><strong>100% Operational</strong></div>
-            </div>
-        `;
-    }
+function openAuthModal() {
+    document.getElementById('modal-body').innerHTML = `
+        <div class="modal-title"><i class="fa-solid fa-user-astronaut"></i> USER AUTHENTICATION</div>
+        <p>Connect with Firebase Cloud Credentials or Google OAuth.</p>
+        <button class="cyber-btn primary" style="width:100%; margin-top:15px;" onclick="simulateGoogleAuth()">SIGN IN WITH GOOGLE 🚀</button>
+    `;
     openModal();
 }
 
-// Modal Toggle Handlers
+function simulateGoogleAuth() {
+    currentUser = "CyberUser_2026";
+    document.getElementById('auth-label').innerText = "CONNECTED";
+    closeModalDirect();
+    showCyberToast("Authenticated as CyberUser_2026!", "fa-circle-check");
+}
+
+async function initializeCoreSystem() {
+    const res = await fetch('/api/status');
+    const data = await res.json();
+    document.getElementById('modal-body').innerHTML = `
+        <div class="modal-title"><i class="fa-solid fa-microchip"></i> SYSTEM DIAGNOSTICS</div>
+        <div class="modal-stat-grid">
+            <div class="stat-item"><span>SYSTEM</span><strong>${data.system}</strong></div>
+            <div class="stat-item"><span>DATABASE</span><strong>${data.database}</strong></div>
+            <div class="stat-item"><span>WEBSOCKET</span><strong>CONNECTED</strong></div>
+            <div class="stat-item"><span>SCENES</span><strong>8 ACTIVE SCENES</strong></div>
+        </div>
+    `;
+    openModal();
+}
+
+function openCardModal(type) {
+    playCyberBeep(600, 'sine');
+    openModal();
+}
+
 function openModal() { document.getElementById('cyber-modal').classList.add('active'); }
 function closeModal(e) { if (e.target.id === 'cyber-modal') document.getElementById('cyber-modal').classList.remove('active'); }
 function closeModalDirect() { document.getElementById('cyber-modal').classList.remove('active'); }
 
-// Cyber Toast Engine
-function showCyberToast(message, icon = "fa-bolt") {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        document.body.appendChild(container);
-    }
+function showCyberToast(msg, icon = "fa-bolt") {
+    let container = document.getElementById('toast-container') || document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
     const toast = document.createElement('div');
     toast.className = 'cyber-toast';
-    toast.innerHTML = `<i class="fa-solid ${icon}" style="color: #00f3ff;"></i> ${message}`;
+    toast.innerHTML = `<i class="fa-solid ${icon}" style="color: #00f3ff;"></i> ${msg}`;
     container.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.4s ease';
-        setTimeout(() => toast.remove(), 400);
-    }, 3200);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
 }
 
-// Window Resize Handler
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();

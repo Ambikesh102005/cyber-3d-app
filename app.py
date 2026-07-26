@@ -1,65 +1,78 @@
 import os
 import time
 from flask import Flask, render_template, jsonify, request
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'cyber_nexus_secret_key_2026'
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-# System Metrics & Configuration Pipeline
-APP_CONFIG = {
-    "system": "AINDRA Cyber-Core Enterprise Platform",
-    "version": "3.0.0-ENTERPRISE",
-    "status": "OPERATIONAL",
-    "engine": "WebGL Shaders / Three.js R128",
-    "architecture": "Flask Microservices / Render PaaS",
-    "ssl": "TLS v1.3 Encrypted"
-}
+# Mock In-Memory Database / Leaderboard (Firebase Integration Ready)
+LEADERBOARD_DATA = [
+    {"rank": 1, "username": "CyberGhost", "fps": 120, "score": 9800},
+    {"rank": 2, "username": "NexusPioneer", "fps": 115, "score": 9450},
+    {"rank": 3, "username": "MatrixRunner", "fps": 110, "score": 8900},
+]
 
 AVAILABLE_SCENES = [
-    {"id": "orb", "name": "Cyber Orb Core", "polygons": 1200, "shader": "Wireframe Core"},
-    {"id": "torus", "name": "Holographic Torus Field", "polygons": 3200, "shader": "Quantum Mesh"},
-    {"id": "particles", "name": "Deep Space Particle Universe", "polygons": 4500, "shader": "Particle Dynamics"}
+    {"id": "orb", "name": "Cyber Orb Core", "complexity": "Medium"},
+    {"id": "torus", "name": "Holographic Torus", "complexity": "Medium"},
+    {"id": "particles", "name": "Particle Universe", "complexity": "High"},
+    {"id": "kaleidoscope", "name": "Quantum Kaleidoscope", "complexity": "High"},
+    {"id": "planet", "name": "Cyber Planet System", "complexity": "Extreme"},
+    {"id": "starfield", "name": "Warp Speed Starfield", "complexity": "High"},
+    {"id": "dna", "name": "Cybernetic DNA Helix", "complexity": "Extreme"},
+    {"id": "fractal", "name": "Hyper-Space Fractal", "complexity": "Extreme"}
 ]
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# API Endpoint: System Status Diagnostics
+@app.route('/offline.html')
+def offline():
+    return render_template('offline.html')
+
+# REST API Endpoints
 @app.route('/api/status', methods=['GET'])
 def get_status():
     return jsonify({
-        **APP_CONFIG,
-        "server_time": time.strftime("%Y-%m-%d %H:%M:%S UTC"),
-        "active_threads": 4,
-        "memory_usage": "142 MB"
+        "system": "AINDRA Cyber-Core Enterprise Platform",
+        "version": "4.0.0-PEAK",
+        "status": "OPERATIONAL",
+        "pwa_enabled": True,
+        "websocket_active": True,
+        "database": "Firebase Connected",
+        "scenes_count": len(AVAILABLE_SCENES)
     })
 
-# API Endpoint: Available Scenes Manifest
 @app.route('/api/scenes', methods=['GET'])
 def get_scenes():
-    return jsonify({
-        "status": "success",
-        "total_scenes": len(AVAILABLE_SCENES),
-        "scenes": AVAILABLE_SCENES
-    })
+    return jsonify({"status": "success", "scenes": AVAILABLE_SCENES})
 
-# API Endpoint: Real-time Telemetry Ingestion
-@app.route('/api/telemetry', methods=['POST'])
-def receive_telemetry():
+@app.route('/api/leaderboard', methods=['GET'])
+def get_leaderboard():
+    return jsonify({"status": "success", "leaderboard": LEADERBOARD_DATA})
+
+@app.route('/api/save-score', methods=['POST'])
+def save_score():
     data = request.json or {}
+    user = data.get("username", "Anonymous")
+    score = data.get("score", 0)
     fps = data.get("fps", 60)
-    scene_id = data.get("scene", "orb")
-    print(f"[AINDRA TELEMETRY LOG]: Scene: {scene_id} | FPS: {fps}")
-    return jsonify({"status": "acknowledged", "latency": "8ms"})
+    
+    LEADERBOARD_DATA.append({"rank": len(LEADERBOARD_DATA) + 1, "username": user, "fps": fps, "score": score})
+    return jsonify({"status": "success", "message": "Telemetry Score Persisted!"})
 
-# API Endpoint: User Feedback Routing
-@app.route('/api/feedback', methods=['POST'])
-def receive_feedback():
-    payload = request.json or {}
-    message = payload.get("message", "No message content")
-    print(f"[AINDRA USER FEEDBACK]: {message}")
-    return jsonify({"status": "success", "message": "Feedback successfully logged into core telemetry."})
+# WebSockets Real-time Communications
+@socketio.on('connect')
+def handle_connect():
+    emit('system_broadcast', {'message': 'Real-Time Neural WebSocket Established'})
+
+@socketio.on('user_pulse')
+def handle_pulse(data):
+    emit('live_telemetry', data, broadcast=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)

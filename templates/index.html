@@ -3,102 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AINDRA // Enterprise 3D Cyber Platform</title>
+    <title>AINDRA // Cyber-Nexus Enterprise 3D</title>
 
-    <!-- Meta Tags for Production Ready PWA -->
-    <meta name="description" content="AINDRA Cyber-Core Enterprise WebGL Engine and Live Telemetry Platform">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="theme-color" content="#030712">
 
-    <!-- Fonts & FontAwesome Icons -->
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS via Flask url_for -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Firebase SDK (v9) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
-    <!-- WebGL Render Canvas -->
+    <!-- 3D WebGL Canvas -->
     <canvas id="cyber-canvas"></canvas>
 
-    <!-- Floating Top Control Dock -->
+    <!-- Floating Top Dock Controls -->
     <div class="control-panel">
-        <select id="scene-selector" onchange="change3DScene(this.value)" class="cyber-select" aria-label="3D Scene Selector">
-            <option value="orb">CYBER ORB</option>
-            <option value="torus">NEON TORUS</option>
-            <option value="particles">PARTICLE UNIVERSE</option>
+        <select id="scene-selector" onchange="change3DScene(this.value)" class="cyber-select">
+            <option value="orb">1. CYBER ORB</option>
+            <option value="torus">2. NEON TORUS</option>
+            <option value="particles">3. UNIVERSE</option>
+            <option value="kaleidoscope">4. KALEIDOSCOPE</option>
+            <option value="planet">5. CYBER PLANET</option>
+            <option value="starfield">6. STARFIELD</option>
+            <option value="dna">7. DNA HELIX</option>
+            <option value="fractal">8. FRACTAL</option>
         </select>
-        <button class="control-btn" onclick="toggleTheme()" title="Toggle Matrix/Neon Theme"><i class="fa-solid fa-palette"></i></button>
-        <button class="control-btn" onclick="toggleAudio()" title="Toggle Web Audio Synthesizer"><i class="fa-solid fa-volume-xmark" id="audio-icon"></i></button>
-        <button class="control-btn" onclick="toggleSpeed()" title="Toggle Turbo Speed"><i class="fa-solid fa-gauge-high"></i></button>
+
+        <button class="control-btn" onclick="toggleTheme()" title="Theme"><i class="fa-solid fa-palette"></i></button>
+        <button class="control-btn" onclick="toggleAudio()" title="Audio Synthesizer"><i class="fa-solid fa-volume-xmark" id="audio-icon"></i></button>
+        <button class="control-btn" onclick="toggleSpeed()" title="Turbo Boost"><i class="fa-solid fa-gauge-high"></i></button>
+        <button class="control-btn highlight" onclick="openAuthModal()" title="User Login"><i class="fa-solid fa-user-astronaut"></i> <span id="auth-label">LOGIN</span></button>
     </div>
 
-    <!-- Live Telemetry Stats Box -->
+    <!-- Live Telemetry Dashboard -->
     <div class="stats-box" id="stats-display">
-        FPS: <span id="fps-val">60</span> // POLYGONS: <span id="poly-val">1200</span> // SCENE: <span id="scene-val">CYBER ORB</span>
+        FPS: <span id="fps-val">60</span> // SHADER: <span id="shader-val">CUSTOM GLSL</span> // SCENE: <span id="scene-val">CYBER ORB</span>
     </div>
 
-    <!-- Interface UI Overlay Container -->
+    <!-- UI Overlay Layer -->
     <div class="ui-wrapper">
-        
-        <!-- Header Navbar -->
         <nav class="cyber-nav">
             <div class="logo">AINDRA<span class="blink">_PRO</span></div>
-            <div class="status-badge"><i class="fa-solid fa-circle"></i> SYSTEM ONLINE</div>
+            <div class="status-badge"><i class="fa-solid fa-circle"></i> WEBSOCKET ONLINE</div>
         </nav>
 
-        <!-- Hero Section -->
         <section class="hero-section">
-            <h1 class="glitch-text" data-text="ENTERPRISE 3D PLATFORM">ENTERPRISE 3D PLATFORM</h1>
-            <p class="tagline">Next-Generation WebGL Shader Architecture & Real-Time Microservice Telemetry</p>
+            <h1 class="glitch-text" data-text="CYBER-NEXUS PEAK">CYBER-NEXUS PEAK</h1>
+            <p class="tagline">Interactive 8-Scene Shader Pipeline, Real-time WebSockets & Firebase Database</p>
             <div class="cta-group">
                 <button class="cyber-btn primary" onclick="initializeCoreSystem()">DIAGNOSTICS CORE <i class="fa-solid fa-microchip"></i></button>
-                <a href="#features" class="cyber-btn secondary">INSPECT NODES</a>
+                <button class="cyber-btn secondary" onclick="openLeaderboardModal()">GLOBAL LEADERBOARD 🏆</button>
             </div>
         </section>
 
-        <!-- Feature Inspection Cards -->
+        <!-- Feature Inspection Matrix -->
         <section id="features" class="features-section">
-            <div class="cyber-card" onclick="openCardModal('webgl')">
-                <div class="card-icon"><i class="fa-solid fa-cube"></i></div>
-                <h3>WebGL Shaders</h3>
-                <p>Multi-scene rendering engine driving dynamic geometry shaders and particle physics.</p>
-                <span class="card-link">INSPECT NODE <i class="fa-solid fa-arrow-right"></i></span>
+            <div class="cyber-card" onclick="openCardModal('shaders')">
+                <div class="card-icon"><i class="fa-solid fa-vr-cardboard"></i></div>
+                <h3>Custom GLSL Shaders</h3>
+                <p>Advanced custom vertex & fragment shaders with real-time waveform displacement.</p>
+                <span class="card-link">INSPECT SHADERS <i class="fa-solid fa-arrow-right"></i></span>
             </div>
 
-            <div class="cyber-card" onclick="openCardModal('neural')">
-                <div class="card-icon"><i class="fa-solid fa-brain"></i></div>
-                <h3>Neural Backend</h3>
-                <p>Python Flask microservices delivering real-time status and JSON API routes.</p>
-                <span class="card-link">INSPECT NODE <i class="fa-solid fa-arrow-right"></i></span>
+            <div class="cyber-card" onclick="openCardModal('firebase')">
+                <div class="card-icon"><i class="fa-solid fa-database"></i></div>
+                <h3>Firebase & Auth</h3>
+                <p>Google OAuth Authentication & Cloud Persistence Database state management.</p>
+                <span class="card-link">INSPECT AUTH <i class="fa-solid fa-arrow-right"></i></span>
             </div>
 
-            <div class="cyber-card" onclick="openCardModal('defense')">
-                <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <h3>Cyber Defense</h3>
-                <p>Production deployment pipeline with SSL encryption and CI/CD automation.</p>
-                <span class="card-link">INSPECT NODE <i class="fa-solid fa-arrow-right"></i></span>
+            <div class="cyber-card" onclick="openCardModal('websocket')">
+                <div class="card-icon"><i class="fa-solid fa-tower-cell"></i></div>
+                <h3>WebSocket Pipeline</h3>
+                <p>Low-latency Socket.io telemetry streaming multi-client updates.</p>
+                <span class="card-link">INSPECT NETWORK <i class="fa-solid fa-arrow-right"></i></span>
             </div>
         </section>
 
         <footer>
-            <p>// AINDRA CYBER-CORE PLATFORM v3.0-ENTERPRISE — 2026 EDITION</p>
+            <p>// AINDRA CYBER-CORE PLATFORM v4.0-PEAK — 2026 EDITION</p>
         </footer>
-
     </div>
 
-    <!-- Modal Drawer Window -->
+    <!-- Dynamic Modal System -->
     <div id="cyber-modal" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-content">
             <button class="close-btn" onclick="closeModalDirect()">&times;</button>
-            <div id="modal-body">
-                <!-- Content injected dynamically via JS -->
-            </div>
+            <div id="modal-body"></div>
         </div>
     </div>
 
-    <!-- Three.js CDN and Core JS Logic -->
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Register PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/service-worker.js')
+                .then(() => console.log('AINDRA PWA Service Worker Registered!'));
+        }
+    </script>
 </body>
 </html>
